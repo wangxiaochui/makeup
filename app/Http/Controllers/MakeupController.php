@@ -40,7 +40,12 @@ class MakeupController extends Controller
        // print_r($ret_data);
        // exit;
         //$photo->getDetail($photo->todo($image_list[0]));
-        return view('web.makeup.display', ['data'=>$ret_data, 'w_h'=>$w_h]);
+        if($request->ajax()){
+            return response(json_encode(['data'=>$ret_data,'wh'=>$w_h]));
+        }else{
+            return view('web.makeup.display', ['data'=>$ret_data, 'w_h'=>$w_h]);
+        }
+
     }
 
     public function makeupNew(){
