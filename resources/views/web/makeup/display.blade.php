@@ -15,7 +15,9 @@
     box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);
     word-spacing: 0;
     }
-    .page{background:url(/images/makeup/bk.jpg)}
+    .page{background:url("{{$bg}}");background-size:100% 100%}
+
+
 @endsection
 
 @section('content')
@@ -23,7 +25,7 @@
         @foreach($data as $dk=>$dv)
         <div class="page" style="overflow:hidden">
             @foreach($dv as $ddk=>$ddv)
-                <div style="@if(isset($ddv['rotate'])) transform:rotate(7deg);
+                <div style="@if(isset($ddv['rotate'])) transform:rotate($ddv['rotate']}}deg);
                         -ms-transform:rotate({{$ddv['rotate']}}deg); 	/* IE 9 */
                         -moz-transform:rotate({{$ddv['rotate']}}deg)                 ; 	/* Firefox */
                         -webkit-transform:rotate({{$ddv['rotate']}}deg); /* Safari 和 Chrome */

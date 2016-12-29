@@ -29,6 +29,7 @@ class Photo extends Base implements MakeupInterface
         $this->is_use_temp = $is_use_temp;
         $this->template_id = $temp_id;
         $this->image_list = $image_list;
+        $this->page = $pages;
         $this->wh = $w_h;
         $ret = $this->packDo();
         return $ret;
@@ -115,7 +116,12 @@ class Photo extends Base implements MakeupInterface
         {
             //var_dump($config['standard']);exit;
             //使用标准模板
-            $data = $config['standard']['nunOne'];
+            if(empty($this->template_id)){
+                $data = $config['standard']['nunOne'];
+            }else{
+                $data = $config['diy'][$this->template_id][$this->page];
+            }
+
             $data = $this->makeData($image_list, $data);
             return $data;
         }
@@ -154,7 +160,12 @@ class Photo extends Base implements MakeupInterface
 
         if($this->is_use_temp)
         {
-            $data = $config['standard']['nunTwo'];
+
+            if(empty($this->template_id)){
+                $data = $config['standard']['nunTwo'];
+            }else{
+                $data = $config['diy'][$this->template_id][$this->page];
+            }
             $data = $this->makeData($image_list, $data);
             return $data;
         }
@@ -390,7 +401,16 @@ class Photo extends Base implements MakeupInterface
         $config = $this->getConf();
         if($this->is_use_temp)
         {
-            $data = $config['standard']['nunThree'];
+
+
+            if(empty($this->template_id)){
+                $data = $config['standard']['nunThree'];
+            }else{
+
+                $data = $config['diy'][$this->template_id][$this->page];
+//                echo '<pre>';
+//                var_dump($config['diy'][$this->template_id]);
+            }
             $data = $this->makeData($image_list, $data);
             return $data;
         }
@@ -625,6 +645,9 @@ class Photo extends Base implements MakeupInterface
         $auto_pack[0]['relative_cut_top'] = $top;
         $auto_pack[0]['relative_cut_left'] = $left;
 
+        $auto_pack[0]['rotate'] = 0;
+        $auto_pack[0]['radius'] = 0;
+
         //如果对比长小于100
         // if($auto_pack[0]['relative_width'] < 100){
         //     //$real_relativ_w =
@@ -678,6 +701,9 @@ class Photo extends Base implements MakeupInterface
         $auto_pack[1]['relative_height'] = $relative_height;
         $auto_pack[1]['relative_cut_top'] = $top;
         $auto_pack[1]['relative_cut_left'] = $left;
+
+        $auto_pack[1]['rotate'] = 0;
+        $auto_pack[1]['radius'] = 0;
 
 
         return $auto_pack;
@@ -760,6 +786,8 @@ class Photo extends Base implements MakeupInterface
         $auto_pack[0]['relative_height'] = $relative_height;
         $auto_pack[0]['relative_cut_top'] = $top;
         $auto_pack[0]['relative_cut_left'] = $left;
+        $auto_pack[0]['rotate'] = 0;
+        $auto_pack[0]['radius'] = 0;
 
 
 
@@ -810,6 +838,8 @@ class Photo extends Base implements MakeupInterface
         $auto_pack[1]['relative_height'] = $relative_height;
         $auto_pack[1]['relative_cut_top'] = $top;
         $auto_pack[1]['relative_cut_left'] = $left;
+        $auto_pack[1]['rotate'] = 0;
+        $auto_pack[1]['radius'] = 0;
 
 
         //$auto_pack[1]['relative_width'] = 100;
@@ -867,6 +897,8 @@ class Photo extends Base implements MakeupInterface
         $auto_pack['relative_height'] = $relative_height;
         $auto_pack['relative_cut_left'] = $relative_cut_left;
         $auto_pack['relative_cut_top'] = $relative_cut_top;
+        $auto_pack['rotate'] = 0;
+        $auto_pack['radius'] = 0;
 
         return $auto_pack;
 

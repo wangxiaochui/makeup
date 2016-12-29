@@ -1,7 +1,7 @@
 $font_size : 12;
 $fontStack: Helvetica, sans-serif;
 $body_bg : #eee;
-$page_bg : '/images/makeup/bk.jpg';
+
 body{background:$body_bg;margin:0;padding:0px;font-family: $fontStack}
 #main{margin-top:20px;margin-left:3%}
 .page{
@@ -12,5 +12,5 @@ body{background:$body_bg;margin:0;padding:0px;font-family: $fontStack}
   display:inline-block;
   box-shadow:0 2px 5px 0 rgba(0,0,0,.16),0 2px 10px 0 rgba(0,0,0,.12);
   word-spacing: 0;
+  overflow:hidden
 }
-.page{background:url($page_bg)}

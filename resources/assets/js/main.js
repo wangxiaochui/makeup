@@ -2,12 +2,14 @@
  * Created by Administrator on 2016/12/28.
  */
 require('./bootstrap');
+import Vuex from 'vuex'
 import App from './App.vue'
 import VueRouter from "vue-router"
+import store from './vuex/store'
 
 //开启debug模式
 Vue.config.debug = true;
-
+Vue.use(Vuex);
 //Vue.use(ElementUI)
 Vue.use(VueRouter);
 
@@ -47,6 +49,8 @@ router.beforeEach((to, from , next)=>{
 });
 
 const app = new Vue({
+    name : 'app',
     router: router,
+    store,
     render: h => h(App)
 }).$mount('#app')
