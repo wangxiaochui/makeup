@@ -7,5 +7,6 @@ namespace App\Services\Makeup;
  * Time: 11:13
  */
 interface MakeupInterface{
-    public function todo($image_list);
+    public function figure($image_list); //插图
+    public function waterfall($image_list); //瀑布流
 }

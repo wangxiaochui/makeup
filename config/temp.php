@@ -68,6 +68,9 @@ return [
             ]
         ]
     ],
+    'waterfall'=>[
+        'padding' =>[10, 6, 10, 6]
+    ],
     'diy' => [
         1 => [
             'background' => '/images/bg/007.jpg',

@@ -2,14 +2,15 @@
     <div id="main" >
         <div v-for="(styles,index) in styleDatas" class="page" :style="pageStyle">
             <div v-for="style in styles" class="photo" :style="style.div">
-                <img :src='style.path' :style='style.img' />
+                <img :src='style.path' :style='style.img' @click="move($event)" />
             </div>
         </div>
 
     </div>
 </template>
-
 <script>
+
+    import { mapState } from 'vuex'
     export default {
         data() {
             return {
@@ -20,6 +21,10 @@
             }
         },
         created() {
+            console.log(this.$store.state.count);
+            this.$store.commit('increment');
+            console.log(this.$store.state.count);
+            console.log(this.$store.getters.countLength)
             this.$http.get('/makeup?is_use_temp=1&temp_id=1').then(({data}) =>{
                 var data = JSON.parse(data);
                 this.data = data['data'];
@@ -27,10 +32,19 @@
                 this.bg = data['bg'];
             },({err})=>{
 
-            })
-        },
+            });
 
+        },
+        methods :{
+            move:function(event) {
+                console.log('move');
+            }
+        },
+        mounted(){
+
+        },
         computed:{
+
             styleDatas : function(){
                let data = this.data
                var style = new Array();

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\Makeup\Photo;
+//use App\Services\Makeup\Photo;
 use Illuminate\Support\Facades\Config;
-
+//use App\Services\Makeup\MakeFacade;
+use Makeup;
 class MakeupController extends Controller
 {
     //
@@ -16,7 +17,8 @@ class MakeupController extends Controller
         $temp_id = empty($request->input('temp_id'))?0:$request->input('temp_id');
 
         $config = Config::get('temp');
-        $photo= new Photo();
+        //$photo= new Photo();
+        $photo = Makeup::getType('photo');
         $photo->setConf($config);
         $image_list = $photo->getImageList('./images/makeup');
         $ret = array_slice($image_list, 0,2);
@@ -34,49 +36,33 @@ class MakeupController extends Controller
             unset($arr_nums['background']);
             $arr_nums = array_values($arr_nums);
             $start = 0;
-//            var_dump($arr_nums);exit;
-//            echo '<pre>';
             $ret_data = [];
             $page = 1;
 
             while(count($image_list) > $start && $page<count($arr_nums)){
                 $rand = $arr_nums[$page-1];
                 $images = array_slice($image_list, $start, $rand);
-//                echo '<pre>';
-//                echo $page;
-//                var_dump($images);
-                $data = $photo->todo($images, $page, $w_h,$is_use_temp,$temp_id);
+                $data = $photo->figure($images, $page, $w_h, $is_use_temp, $temp_id);
                 $start += $rand;
                 $ret_data[] = $data;
-                //var_dump($data);
-                // print_r($images);
                 $page ++;
             }
 
 
         }else{
             $start = 0;
-            //var_dump($rand);exit;
-            //echo '<pre>';
             $ret_data = [];
             $page = 1;
             while(count($image_list) > $start){
                 $rand = rand(1, 4);
                 $images = array_slice($image_list, $start, $rand);
-                $data = $photo->todo($images, $page, $w_h,$is_use_temp);
+                $data = $photo->figure($images, $page, $w_h,$is_use_temp);
                 $start += $rand;
                 $ret_data[] = $data;
-                //var_dump($data);
-                // print_r($images);
                 $page ++;
-
             }
         }
 
-//        echo '<pre>';
-//        print_r($ret_data);
-//        exit;
-        //$photo->getDetail($photo->todo($image_list[0]));
         $bg = isset($config['diy'][$temp_id]['background']) ?$config['diy'][$temp_id]['background']:$config['standard']['background'];
         if($request->ajax()){
             return response(json_encode(['data'=>$ret_data,'wh'=>$w_h,'bg'=>$bg]));
@@ -88,6 +74,16 @@ class MakeupController extends Controller
 
     public function makeupNew(){
         return view('web.makeup.display_new');
+    }
+
+    public function waterfall(Request $request){
+       // var_dump('waterfall');
+        $config = Config::get('temp');
+        $photo = Makeup::getType('photo');
+        $photo->setConf($config);
+        $image_list = $photo->getImageList('./images/makeup');
+
+        $data = $photo->waterfall($image_list);
     }
 
     public function test(){
