@@ -86,6 +86,12 @@ class MakeupController extends Controller
         $data = $photo->waterfall($image_list);
     }
 
+    public function wxbook(Request $request){
+        $wxBook = Makeup::getType('wxbook');
+        $wxBook->getData();
+
+    }
+
     public function test(){
         return view('web.makeup.test');
     }

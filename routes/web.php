@@ -36,5 +36,8 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('makeup/new','MakeupController@makeupNew');
     Route::get('makeup/test','MakeupController@test');
     Route::get('makeup/waterfall','MakeupController@waterfall');
+    Route::get('makeup/wxbook','MakeupController@wxbook');
     Route::get('user','UserController@index');
+    Route::get('auto', 'AutoController@index');
+    Route::get('auto/test', 'AutoController@test');
 });
