@@ -88,8 +88,12 @@ class MakeupController extends Controller
 
     public function wxbook(Request $request){
         $wxBook = Makeup::getType('wxbook');
-        $wxBook->getData();
-
+        $width = $request->input('w')?$request->input('w'):559;
+        $height = $request->input('h')?$request->input('h'):794;
+        $arr_total = $wxBook->figure([]);
+//        echo '<pre>';
+//        print_r($arr_total);exit;
+        return view('web.auto.test',['detail'=>$arr_total]);
     }
 
     public function test(){
