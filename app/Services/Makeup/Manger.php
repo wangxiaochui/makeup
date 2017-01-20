@@ -24,4 +24,8 @@ class Manger
     private function createWxbookDriver(){
         return new Wxbook();
     }
+
+    private function createHcdiyDriver(){
+        return new Hcdiy();
+    }
 }

@@ -71,6 +71,9 @@ return [
     'waterfall'=>[
         'padding' =>[10, 6, 10, 6]
     ],
+    'wxbook' => [
+        'padding' => [10, 10, 10, 10]
+    ],
     'diy' => [
         1 => [
             'background' => '/images/bg/007.jpg',

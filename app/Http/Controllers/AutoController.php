@@ -18,8 +18,8 @@ class AutoController extends Controller
         $this->height = $height = $request->input('h')?$request->input('h'):794;
         $setting = $this->setting();
         $pbs = $this->get_detail($width, $height);
-        echo '<pre>';
-        print_r($pbs);exit;
+//        echo '<pre>';
+//        print_r($pbs);exit;
         $perv_height = 0;
         $arr_total = [];
         $page = 1;
@@ -83,9 +83,9 @@ class AutoController extends Controller
             }
 
         }
-        echo '<pre>';
-        print_r($arr_total);
-        exit;
+//        echo '<pre>';
+//        print_r($arr_total);
+//        exit;
         return view('web.auto.test',['detail'=>$arr_total]);
     }
 

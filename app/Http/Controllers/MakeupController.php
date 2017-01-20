@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Images;
+use Faker\Provider\Image;
 use Illuminate\Http\Request;
 //use App\Services\Makeup\Photo;
 use Illuminate\Support\Facades\Config;
 //use App\Services\Makeup\MakeFacade;
+use Illuminate\Support\Facades\DB;
 use Makeup;
 class MakeupController extends Controller
 {
     //
     public function index(Request $request){
+
 
         $w_h = empty($request->input('w_h'))?1:$request->input('w_h');
         $is_use_temp = empty($request->input('is_use_temp'))?0:$request->input('is_use_temp');
@@ -76,6 +80,11 @@ class MakeupController extends Controller
         return view('web.makeup.display_new');
     }
 
+    public function hcTemp(){
+        $tid = '158783585';
+        var_dump($this->getPcTemp($tid));exit;
+    }
+
     public function waterfall(Request $request){
        // var_dump('waterfall');
         $config = Config::get('temp');
@@ -88,15 +97,29 @@ class MakeupController extends Controller
 
     public function wxbook(Request $request){
         $wxBook = Makeup::getType('wxbook');
+        $config = Config::get('temp');
+
         $width = $request->input('w')?$request->input('w'):559;
         $height = $request->input('h')?$request->input('h'):794;
+        $config['wxbook']['bj_width'] = $width;
+        $config['wxbook']['bj_height'] = $height;
+        $wxBook->setConf($config['wxbook']);
         $arr_total = $wxBook->figure([]);
-//        echo '<pre>';
-//        print_r($arr_total);exit;
+
         return view('web.auto.test',['detail'=>$arr_total]);
     }
 
     public function test(){
         return view('web.makeup.test');
+    }
+
+    private function getPcTemp($tid){
+        //return 'temp';
+        $stages = DB::table('sdb_b2c_templates_pro')->where('fid', $tid)->get(['stage']);
+        $Hcdiy = Makeup::getType('hcdiy');
+        $image_list = $Hcdiy->getImageList('./images/makeup');
+        $Hcdiy->pack($image_list, $stages);
+
+        return $stages;
     }
 }
