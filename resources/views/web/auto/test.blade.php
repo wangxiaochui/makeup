@@ -18,7 +18,7 @@
 
 
                     @foreach($pv['img'] as $ik=>$iv)
-                        <div style="left:{{$iv['left']}}px;top:{{$iv['top']}}px;width:{{$iv['width']}}px;height:{{$iv['height']}}px;background-image:url({{$iv['img_path']}});" class="image loaded" data-msg-id="16231913" >
+                        <div style="left:{{$iv['left']}}px;top:{{$iv['top']}}px;width:{{$iv['width']}}px;height:{{$iv['height']}}px;background-image:url({{$iv['img_path']}});" class="image loaded" data-msg-id="{{$dk}}" >
 
                         </div>
                     @endforeach
@@ -70,3 +70,6 @@
 
     </div>
 @endsection
+<script>
+
+</script>

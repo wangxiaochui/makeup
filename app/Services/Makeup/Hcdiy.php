@@ -15,7 +15,7 @@ class Hcdiy extends Base
     private $img_list;
     public function pack($img_list , $temps){
         $this->temps = $temps;
-        $this->img_list = $img_list;
+            $this->img_list = $img_list;
         //所需照片数
         $this->getImageNum($temps);
     }

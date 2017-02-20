@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Storage;
-
+use App\Images;
 class AutoController extends Controller
 {
+    public $r_width;
+    public $r_height;
     //
     public function index(Request $request){
 
@@ -15,42 +17,42 @@ class AutoController extends Controller
 
     public function test(Request $request){
         $this->width = $width = $request->input('w')?$request->input('w'):559;
-        $this->height = $height = $request->input('h')?$request->input('h'):794;
+        $this->height = $height = $request->input('h')?$request->input('h'):793;
         $setting = $this->setting();
-        $pbs = $this->get_detail($width, $height);
-//        echo '<pre>';
-//        print_r($pbs);exit;
+        $pbs = $this->get_detail_new($width, $height);
+        $pbs = array_values($pbs);
+
         $perv_height = 0;
         $arr_total = [];
         $page = 1;
         $arr_total = [];
-//        echo '<pre>';
-//        print_r($pbs);exit;
-        $rand_time = 1420041600;
+        $old_m = 0;
         foreach($pbs as $k=>$v){
+
+
+            $y = $v[0]['time'][0];
+            $m = $v[0]['time'][1];
+            $d = $v[0]['time'][2];
+            $t = $v[0]['time'][3];
+            if($k>0){ //第一条不判断
+
+                if($m != $old_m){
+                    $page++;
+                    $perv_height = 0;
+                }
+            }
             $count = count($v);
             $arr_info = $this->pb($count, $v, $page, $perv_height);
-            $fill_height = $v[0]['r_height'] - $setting['padding'][0]-$setting['padding'][2];
+            $fill_height = $this->r_height - $setting['padding'][0]-$setting['padding'][2];
 
-            $perv_height = $arr_info['self_height'] + $arr_info['perv_height']+30;
+            $perv_height = $arr_info['self_height'] + $arr_info['perv_height']+30; //每一条之间间隔 30
            // var_dump($page);
             $page = $arr_info['page'];
 
-            //var_dump($arr_info['flag']);
             //组合数据
             if($arr_info['flag'] !='other')
             {
-
-                $rand_time+= mt_rand(90000,900000);
-
-                $y = date('Y',$rand_time);
-                $m = date('m',$rand_time);
-                $d = date('d',$rand_time);
-                $t = date('H:i',$rand_time);
-
                 //日期位置
-
-
 
                 if($arr_info['flag'] == 'text'){
                     $arr_total[$arr_info['page']][$k]['text'] = $arr_info['text'];
@@ -61,10 +63,10 @@ class AutoController extends Controller
                     $arr_total[$arr_info['page']][$k]['time'] = [$y, $m, $d, $t,$day_pos,$rect_pos,$time_post];
                 }elseif($arr_info['flag'] == 'img_text' ||$arr_info['flag'] == 'text_img_od' ){
                     if($arr_info['flag'] == 'text_img_od'){
-                        //echo '<pre>';
-                       // var_dump($arr_info['img']);
                     }
+
                     $arr_total[$arr_info['text']['page']][$k]['text'] = $arr_info['text'];
+
                     $day_pos =$arr_total[$arr_info['text']['page']][$k]['text'][0]['y'] + 2;
                     $rect_pos =$arr_total[$arr_info['text']['page']][$k]['text'][0]['y'] + 5;
                     $time_post = $arr_total[$arr_info['text']['page']][$k]['text'][0]['y'] + 19     ;
@@ -72,20 +74,19 @@ class AutoController extends Controller
                     $arr_total[$arr_info['text']['page']][$k]['time'] = [$y, $m, $d, $t,$day_pos,$rect_pos,$time_post];
 
                     $arr_total[$arr_info['text']['page']][$k]['text'] = $arr_info['text'];
-                    //$arr_total[$arr_info['text']['page']][$k]['time'] = [$y, $m, $d, $t];
-                    //$arr_total[$arr_info['text']['page']][$k]['text'] = $arr_info['text'];
+
                     foreach($arr_info['img'] as $ik=>$iv){
-//                        echo '<pre>';
-//                        var_dump($iv);
+
                         $arr_total[$iv['page']][$k]['img'][$ik] = $iv;
                     }
                 }
             }
-
+            $old_m = $m;
         }
-//        echo '<pre>';
-//        print_r($arr_total);
-//        exit;
+
+//            echo '<pre>';
+//            print_r($arr_total);
+//            exit;
         return view('web.auto.test',['detail'=>$arr_total]);
     }
 
@@ -109,7 +110,8 @@ class AutoController extends Controller
     protected function get_display($width, $height){
         $r_width = $width - $this->setting()['padding'][1] - $this->setting()['padding'][3];
         $r_height= $height - $this->setting()['padding'][0] - $this->setting()['padding'][2];
-
+        $this->r_width = $r_width;
+        $this->r_height = $r_height;
         return ['r_width'=>$r_width, 'r_height'=>$r_height];
     }
     //获取信息
@@ -126,6 +128,10 @@ class AutoController extends Controller
 
         }
         return $arr_dir;
+    }
+    protected function get_detail_new($width, $height){
+        $this->get_display($width, $height);
+        return $this->getData();
     }
 
     //获取详细
@@ -189,8 +195,7 @@ class AutoController extends Controller
                 }
             }
         }
-    //        echo '<pre>';
-    //        print_r($pb_info);exit;
+
         return $pb_info;
     }
 
@@ -209,7 +214,8 @@ class AutoController extends Controller
         if($data[0]['img_width'] == 0){ //无图片
 
 			$arr_info = $this->pd_no_img($data, $perv_height, $page);
-            $arr_info['self_height'] = $arr_info['self_height']+$perv_height;
+           // $arr_info['self_height'] = $arr_info['self_height']+$arr_info['perv_height'];
+
             $arr_info['text'] = $arr_info;
             return $arr_info;
         }
@@ -240,7 +246,7 @@ class AutoController extends Controller
 
         $setting = $this->setting();
         $text_left = $setting['svg_main_left'];
-        $fill_width = $data[0]['r_width'] -(2*$text_left);
+        $fill_width = $this->r_width -(2*$text_left);
 
         //var_dump($arr);exit;
         $first_img = $data[0];
@@ -261,10 +267,13 @@ class AutoController extends Controller
 
         $text_left = $setting['svg_main_left'];
         $text = $data[0]['title'];
+        if(empty($text)){
+            $text = "这里无内容";
+        }
         //var_dump($text);exit;
         //填充区(不包括日期图标)
-        $fill_width = $data[0]['r_width'] -(2*$text_left);
-        $fill_height = $data[0]['r_height'];
+        $fill_width = $this->r_width -(2*$text_left);
+        $fill_height = $this->r_height;
         $arr_text = $this->mb_str_split(trim($text));
         $max_width = 0;
         $arr_info = [];
@@ -280,21 +289,26 @@ class AutoController extends Controller
         //估算所占高度
         $gs_height = $ln*$text_height;
         //var_dump($gs_height);exit;
-
+//        if($page == 64){
+//            var_dump($text_fill_width);exit;
+//        }
         $padding_top = 0;
         //如果估算高度大于图片高度，将图片包围
         if($gs_height>$f_img_height){
-            $gs_height = $gs_height - (($gs_height-$f_img_height)/2);
+            //$gs_height = $gs_height - (($gs_height-$f_img_height)/2);
+            $gs_height = $f_img_height + (($gs_height-$f_img_height)/$fill_width);
         }else{
          $padding_top = ($f_img_height-$gs_height)/2;
 		 $gs_height = $f_img_height;
 		}
+
        // var_dump($gs_height+$perv_height);
         if($gs_height+$perv_height > $fill_height){
             $page++; //翻页
             $perv_height = 0; //重置已占高度
         }
 
+        $self_height =0;
         for($i=0 ; $i<$count; $i++){
             if($arr_text[$i] == ''){
                 continue;
@@ -317,19 +331,19 @@ class AutoController extends Controller
 
             //var_dump($self_height);
             //文字超出图片部分
-            if($self_height>$f_img_height+$text_width){
+            if($self_height>$f_img_height+$text_height){
                 $x = $max_width+$text_left+$setting['img_margin'];
                 //$text_fill_width = $fill_width;
                 $new_all_width = $new_all_width+$text_width;
                 $text_fill_width = $fill_width;
                 $new_hs = ceil($new_all_width/$fill_width);
                 $self_height = $self_height+$new_hs*$text_height;
-                $y = (  ($hs+$new_hs-1)*$text_height)+$perv_height;
+                $y = (($hs+$new_hs-1)*$text_height)+$perv_height;
 
             }else{
                 $x = $max_width+$text_left+$f_img_width+$setting['img_margin'];
                 $self_height = $f_img_height;
-                $y = (  ($hs+$new_hs)*$text_height)+$perv_height+$padding_top;
+                $y = (($hs+$new_hs)*$text_height)+$perv_height+$padding_top;
             }
 
 
@@ -355,7 +369,7 @@ class AutoController extends Controller
        // $perv_height = $perv_height + $self_height;
         if(count($data)>1){
             $self_height = $perv_height+$self_height;
-            $img_info = $this->pd_odd($data, $perv_height+$self_height+10, $page);
+            $img_info = $this->pd_odd($data, $self_height+10, $page);
 			$page = $img_info['page'];
 
             $self_height = $img_info['self_height'];
@@ -369,7 +383,9 @@ class AutoController extends Controller
             $img_info['img'] = [$f_img];
         }
 
-
+//        if($page == 65){
+//            var_dump($self_height);
+//        }
         $arr_info_ret['self_height'] = $self_height;  //这条说说所占用的高度
         $arr_info_ret['perv_height'] = $perv_height;
         $arr_info_ret['page'] = $page;
@@ -387,7 +403,7 @@ class AutoController extends Controller
 
     //偶数图片 ----英文弄反了。
     protected function pd_odd($data, $perv_height, $page){
-        //根据比例排序
+        //根据比例排序,首尾结合排
         foreach ($data as $k=>$item) {
             $arr[] = $item['img_scale'];
         }
@@ -397,33 +413,36 @@ class AutoController extends Controller
         $mid = $count/2;
         $rand = range(0, $mid-1);
         $setting = $this->setting();
-        $fill_height = $data[0]['r_height'];
+        $fill_height = $this->r_height;
         $text_left = $setting['svg_main_left'];
         $img_left = $setting['padding'][3] + $text_left;
         $arr_info = [];
         $self_height = 0;
+        $self_height_1 = 0;
         for($i=0;$i<$mid;$i++){
             $num = array_rand($rand);
            // var_dump($num);
             $start = $num;  //第一张
             $end = $count-1-$num;//第二张
-         //   echo '<pre>';
-//            var_dump($data[$start]);
-//            var_dump($data[$end]);
+
             $left = $data[$start];
             $right = $data[$end];
-            $fill_width = $data[0]['r_width'] -(2*$text_left);
+            $fill_width = $this->r_width -(2*$text_left);
+            //中间留条空
             $img_real_width = $fill_width-$setting['img_margin'];
 
             //计算图片长宽
             $sun_scale = $left['img_scale'] + $right['img_scale'];
 
             $height = intval($img_real_width/$sun_scale);
+            //var_dump($fill_height);
+            $self_height_1 = $self_height_1 + $height + 10;
 
-            if($perv_height+$height > $fill_height){
+            if($perv_height+$self_height_1 > $fill_height){
                 $page++;
                 $perv_height=0;
 				$self_height = 0;
+                $self_height_1 = $height+10;
             }
 
             $left_width = intval($height * $left['img_scale']);
@@ -431,8 +450,8 @@ class AutoController extends Controller
 
             $arr_info['img'][] = ['page'=>$page,'img_path'=> $left['img_path'],'width'=>$left_width, 'height'=>$height ,'left'=>$img_left, 'top'=>$perv_height+$setting['padding'][0]+$self_height];
             $arr_info['img'][] = ['page'=>$page,'img_path'=> $right['img_path'],'width'=>$right_width, 'height'=>$height,'left'=>$img_left+$left_width+$setting['img_margin'], 'top'=>$perv_height+$setting['padding'][0]+$self_height];
-            $perv_height = $perv_height + 10;
-            $self_height = $self_height+$height;
+            //$perv_height = $perv_height; //上下图片间隔
+            $self_height = $self_height+$height+10;
             unset($rand[$num]);
         }
         $arr_info['self_height'] = $self_height;
@@ -451,8 +470,9 @@ class AutoController extends Controller
 		$text = $data[0]['title'];
         //var_dump($text);exit;
 		//填充区(不包括日期图标)
-		$fill_width = $data[0]['r_width'] -(2*$text_left);
-        $fill_height = $data[0]['r_height'];
+		$fill_width = $this->r_width -(2*$text_left);
+        $fill_height = $this->r_height;
+
 		$arr_text = $this->mb_str_split(trim($text));
 		$max_width = 0;
 		$arr_info = [];
@@ -462,14 +482,13 @@ class AutoController extends Controller
         $text_height = 22;
         $count =count($arr_text);
         $ln = ceil($count*$text_width/$fill_width);
-
+        $self_height = 0;
         //估算所占高度
         $gs_height = $ln*$text_height;
         if($gs_height+$perv_height > $fill_height){
             $page++; //翻页
             $perv_height = 0; //重置已占高度
         }
-
 		for($i=0 ; $i<$count; $i++){
             if($arr_text[$i] == ''){
                 continue;
@@ -495,11 +514,11 @@ class AutoController extends Controller
 			}
 
 
-			$arr_info[$i] = ['text'=>$arr_text[$i],'x'=>$max_width+$text_left,'y'=>$y];
+			$arr_info[$i] = ['text'=>$arr_text[$i],'x'=>$max_width+$text_left,'y'=>$y+20];
             $max_width = $max_width+$text_width ;
 		}
 		$arr_info['self_height'] = $self_height;  //这条说说所占用的高度
-        $arr_info['perv_height'] = $perv_height;
+        $arr_info['perv_height'] = $perv_height+20;
         $arr_info['page'] = $page;
         $arr_info['flag'] = 'text';
         //var_dump($arr_info);
@@ -518,5 +537,82 @@ class AutoController extends Controller
             $arr[] = $s;
         }
         return $arr;
+    }
+
+    /**
+     * @return array
+     */
+    public function getData(){
+        $origin=str_replace(array("\\n","\\r"),"",Storage::get('data/sns.json'));
+        $str = stripslashes($origin);
+
+        $images = $this->getImageInfo();
+        $arr_origih = array_column($images, 'origin_url');
+        $arr_local = array_column($images, 'local_path');
+
+        $new_str = str_replace($arr_origih, $arr_local, $str);
+
+        $info = json_decode($new_str,true);
+//        echo '<pre>';
+//        var_dump($info);exit;
+        $arr_timestamp = array_column($info, 'timestamp');
+        array_multisort($arr_timestamp,SORT_ASC,$info);
+        //print_r(array_column($info, 'timestamp'));exit;
+        $image_text = [];
+        $arr_text = [];
+        $arr_img = [];
+
+        foreach($info as $k=>$v){
+            if($v['contentType'] == 3){
+
+                $y = date('Y',$v['timestamp']);
+                $m = date('m',$v['timestamp']);
+                $d = date('d',$v['timestamp']);
+                $t = date('H:i',$v['timestamp']);
+                if(count($v['mediaList'])>0){
+                    foreach($v['mediaList'] as $mk=>$mv){
+                        $arr_img[$k][$mk]['title'] = $v['content'];
+                        $arr_img[$k][$mk]['img_width'] = $mv['width'];
+                        $arr_img[$k][$mk]['img_height'] = $mv['height'];
+                        $arr_img[$k][$mk]['img_scale'] = $mv['width']/$mv['height'];
+                        $arr_img[$k][$mk]['img_path'] = $mv['url'];
+                        $arr_img[$k][$mk]['time'] = [$y, $m , $d, $t];
+                    }
+
+                }else{
+                    $arr_img[$k][0]['img_width'] = 0;
+                    $arr_img[$k][0]['img_height'] = 0;
+                    $arr_img[$k][0]['img_scale'] = 1;
+                    $arr_img[$k][0]['title'] = $v['content'];
+                    $arr_img[$k][0]['time'] = [$y, $m , $d, $t];
+                }
+
+            }
+        }
+        return $arr_img;
+        echo '<pre>';
+        print_r($arr_img);
+        echo '<pre>';
+        print_r($arr_img);exit;
+        echo '<pre>';
+        print_r($image_text);exit;
+        return $image_text;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDataByDate(){
+        $data = $this->getData();
+
+        return $data;
+
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getImageInfo(){
+        return Images::where('status',1)->get()->toArray();
     }
 }
